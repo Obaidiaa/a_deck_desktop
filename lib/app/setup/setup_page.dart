@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:a_deck_desktop/app/models/settings.dart';
+// ignore: unused_import
 import 'package:a_deck_desktop/app/settings/setting_view_model.dart';
 import 'package:a_deck_desktop/app/setup/setup_view_model.dart';
 import 'package:a_deck_desktop/routing/app_router.dart';

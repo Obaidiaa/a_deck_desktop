@@ -32,7 +32,6 @@ class SharedPreferencesService {
   setCommandsList(List<Command> commandsList) async {
     // final commandsJson = jsonEncode(commandsList);
     var commandsJson = jsonEncode(commandsList.map((e) => e.toJson()).toList());
-    print(commandsJson);
 
     // print(jsonEncode(commandsList[0]));
     await sharedPreferences.setString(commandsListKey, commandsJson);

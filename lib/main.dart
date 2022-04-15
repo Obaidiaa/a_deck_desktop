@@ -1,6 +1,4 @@
-import 'package:a_deck_desktop/app/commands/commands_page.dart';
 import 'package:a_deck_desktop/app/home/home_page.dart';
-import 'package:a_deck_desktop/app/setup/setup_page.dart';
 import 'package:a_deck_desktop/routing/app_router.dart';
 import 'package:a_deck_desktop/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';

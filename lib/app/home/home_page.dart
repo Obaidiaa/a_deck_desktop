@@ -1,13 +1,9 @@
 // home page nothing else for now
 
-import 'dart:math';
-
 import 'package:a_deck_desktop/app/commands/commands_page.dart';
 import 'package:a_deck_desktop/app/deck/deck_page.dart';
-import 'package:a_deck_desktop/app/deck/deck_view_model.dart';
 import 'package:a_deck_desktop/app/models/settings.dart';
 import 'package:a_deck_desktop/app/settings/setting_page.dart';
-import 'package:a_deck_desktop/app/top_level_providers.dart';
 import 'package:a_deck_desktop/routing/app_router.dart';
 import 'package:flutter/material.dart';
 

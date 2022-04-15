@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:a_deck_desktop/app/commands/add_command.dart';
+import 'package:a_deck_desktop/app/commands/add_command_page.dart';
 import 'package:a_deck_desktop/app/commands/commands_view_model.dart';
+import 'package:a_deck_desktop/app/commands/edit_command_page.dart';
 import 'package:a_deck_desktop/routing/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,8 +23,6 @@ class CommandsPage extends ConsumerStatefulWidget {
 class _CommandsPageState extends ConsumerState<CommandsPage> {
   @override
   Widget build(BuildContext context) {
-    ref.watch(addCommandProvider);
-    print("rebuilding");
     return Scaffold(
       appBar: AppBar(
         title: const Text('Commands'),
@@ -32,25 +31,36 @@ class _CommandsPageState extends ConsumerState<CommandsPage> {
               onPressed: () => showDialog(
                   context: context,
                   builder: (BuildContext context) =>
-                      const Dialog(child: AddCommand()))
-                ..then((val) {
-                  ref.refresh(commandsViewModelProvider);
-                }),
+                      const Dialog(child: AddCommand())),
               child: const Icon(Icons.add))
         ],
       ),
       body: SafeArea(
           child: Column(
-              children: ref.read(commandsListProvider).map((data) {
+              children: ref.watch(commandsListProvider).map((data) {
         return ListTile(
           title: Text(data.name!),
           leading: Image.file(File(data.picture!)),
           subtitle: Text(data.command!),
-          trailing: ElevatedButton(
-              child: const Text("delete command"),
-              onPressed: () => ref
-                  .read(commandsViewModelProvider)
-                  .onDeleteCommand(data.id!)),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: ElevatedButton(
+                    onPressed: () => showDialog(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            Dialog(child: EditCommand(data))),
+                    child: const Text('Edit')),
+              ),
+              ElevatedButton(
+                  child: const Text("delete command"),
+                  onPressed: () => ref
+                      .read(commandsViewModelProvider)
+                      .onDeleteCommand(data.id!)),
+            ],
+          ),
         );
       }).toList())),
     );

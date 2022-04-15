@@ -2,11 +2,9 @@
 
 import 'dart:io';
 
-import 'package:a_deck_desktop/app/commands/commands_view_model.dart';
 import 'package:a_deck_desktop/app/deck/deck_view_model.dart';
 import 'package:a_deck_desktop/app/models/settings.dart';
 import 'package:a_deck_desktop/routing/app_router.dart';
-import 'package:a_deck_desktop/services/data_api.dart';
 import 'package:a_deck_desktop/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,12 +34,11 @@ class DeckDisplay extends ConsumerWidget {
   const DeckDisplay({Key? key}) : super(key: key);
 
   onAdd(WidgetRef ref) {
-    ref.read(deckViewModelProvider).addCommand();
+    ref.read(deckViewModelProvider.notifier).addCommand();
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ref.watch(addCommandProvider);
     return Column(
       children: [
         Expanded(

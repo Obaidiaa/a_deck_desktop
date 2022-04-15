@@ -1,37 +1,37 @@
 import 'package:a_deck_desktop/app/models/command.dart';
-import 'package:a_deck_desktop/app/models/settings.dart';
-import 'package:a_deck_desktop/app/top_level_providers.dart';
 import 'package:a_deck_desktop/services/data_api.dart';
-import 'package:a_deck_desktop/services/shared_preferences_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final deckCommandProvider = FutureProvider<List<Command>>((ref) {
-  final dataApi = ref.watch(dataProvider);
-  return dataApi.apiGetCommands();
+  ref.watch(dataProvider);
+  return ref.read(dataProvider.notifier).apiGetCommands();
 });
 
-final deckViewModelProvider = Provider((ref) {
-  final dataApi = ref.watch(dataProvider);
-  return DeckViewModel(dataApi: dataApi, ref: ref);
+final deckViewModelProvider =
+    StateNotifierProvider<DeckViewModel, List<Command>>((ref) {
+  final commandsList = ref.watch(dataProvider);
+  return DeckViewModel(commandsList: commandsList, ref: ref);
 });
 
 class DeckViewModel extends StateNotifier<List<Command>> {
-  DeckViewModel({required this.dataApi, required this.ref}) : super([]) {
-    getCommands();
-  }
-  final DataApi dataApi;
-  final ProviderRef ref;
-  getCommands() {
-    // state = await dataApi.apiGetCommands();
-    state = dataApi.listCommand;
-    ref.refresh(deckCommandProvider);
-    // return dataApi.apiGetCommands();
-  }
+  DeckViewModel({required this.commandsList, required this.ref})
+      : super(commandsList ?? []);
+  final List<Command>? commandsList;
+  final Ref ref;
+
+  @override
+  get state => super.state;
+  // getCommands() {
+  //   // state = await dataApi.apiGetCommands();
+  //   // state = dataApi.state;
+  //   // ref.refresh(deckCommandProvider);
+  //   // return dataApi.apiGetCommands();
+  // }
 
   addCommand() {
     // dataApi.addCommand();
     // print(dataApi.listCommand.length);
-    state = dataApi.listCommand;
-    ref.refresh(deckCommandProvider);
+    // state = dataApi.state;
+    // ref.refresh(deckCommandProvider);
   }
 }
