@@ -3,17 +3,11 @@ import 'dart:io';
 import 'package:a_deck_desktop/app/commands/command_managment_view_model.dart';
 import 'package:a_deck_desktop/app/models/command.dart';
 
-import 'package:a_deck_desktop/routing/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AddCommand extends ConsumerWidget {
   const AddCommand({Key? key}) : super(key: key);
-  static Future<void> show(BuildContext context) async {
-    await Navigator.of(context, rootNavigator: true).pushNamed(
-      AppRoutes.commandAddPage,
-    );
-  }
 
   onSubmit(
       WidgetRef ref, String name, String commandState, BuildContext context) {

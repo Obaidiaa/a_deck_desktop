@@ -6,6 +6,7 @@ import 'package:a_deck_desktop/app/deck/deck_view_model.dart';
 import 'package:a_deck_desktop/app/models/settings.dart';
 import 'package:a_deck_desktop/routing/app_router.dart';
 import 'package:a_deck_desktop/services/shared_preferences_service.dart';
+import 'package:a_deck_desktop/services/web_socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -52,7 +53,9 @@ class DeckDisplay extends ConsumerWidget {
                       itemBuilder: (BuildContext context, int index) {
                         return Card(
                           child: InkWell(
-                            onTap: () => print("${data[index].id}"),
+                            onTap: () => ref
+                                .read(webSocketServiceProvider.notifier)
+                                .start(),
                             child: Image.file(File(data[index].picture!),
                                 fit: BoxFit.fill),
                           ),

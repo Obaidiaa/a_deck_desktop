@@ -14,7 +14,6 @@ class AppRoutes {
   static const settingPage = '/setting-page';
   static const setupPage = '/setup-page';
   static const commandsPage = '/commands-page';
-  static const commandAddPage = '/command-add-page';
 
   static const homePage = '/';
 }
@@ -50,11 +49,6 @@ class AppRouter {
       case AppRoutes.commandsPage:
         return MaterialPageRoute<dynamic>(
           builder: (_) => const CommandsPage(),
-          fullscreenDialog: true,
-        );
-      case AppRoutes.commandAddPage:
-        return MaterialPageRoute<dynamic>(
-          builder: (_) => const AddCommand(),
           fullscreenDialog: true,
         );
       default:
