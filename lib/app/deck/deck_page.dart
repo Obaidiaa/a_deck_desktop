@@ -1,10 +1,12 @@
 // deck page showing all commands
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:a_deck_desktop/app/deck/deck_view_model.dart';
 import 'package:a_deck_desktop/app/models/settings.dart';
 import 'package:a_deck_desktop/routing/app_router.dart';
+import 'package:a_deck_desktop/services/data_api.dart';
 import 'package:a_deck_desktop/services/shared_preferences_service.dart';
 import 'package:a_deck_desktop/services/web_socket_service.dart';
 import 'package:flutter/material.dart';
@@ -53,9 +55,7 @@ class DeckDisplay extends ConsumerWidget {
                       itemBuilder: (BuildContext context, int index) {
                         return Card(
                           child: InkWell(
-                            onTap: () => ref
-                                .read(webSocketServiceProvider.notifier)
-                                .start(),
+                            onTap: () {},
                             child: Image.file(File(data[index].picture!),
                                 fit: BoxFit.fill),
                           ),
@@ -67,8 +67,7 @@ class DeckDisplay extends ConsumerWidget {
                       child: Center(child: CircularProgressIndicator()),
                     ))),
         ElevatedButton(
-          onPressed: () =>
-              ref.read(sharedPreferencesServiceProvider).deleteSettings(),
+          onPressed: () => ref.read(dataProvider.notifier).startServer2(),
           child: const Text('re'),
         )
       ],
