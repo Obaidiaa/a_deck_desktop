@@ -37,6 +37,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final loadedSetting = ref.read(settingsProvider);
     // if (loadedSetting.serverIp != null) {
     _serverIP = loadedSetting.serverIp;
+
     _serverPort = loadedSetting.serverPort;
     // }
   }
@@ -100,13 +101,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   List<Widget> _buildFormChildren() {
     final _serverIPController = TextEditingController(text: _serverIP);
     final _serverPortController = TextEditingController(text: _serverPort);
-
+    ref.read(settingsViewModelProvider).getCurrentIP(_serverIPController);
     return [
       TextFormField(
         decoration: const InputDecoration(labelText: 'Server IP'),
         keyboardAppearance: Brightness.light,
         validator: (value) => _validateIp(value),
         controller: _serverIPController,
+        // initialValue: snapshot.data,
       ),
       TextFormField(
         decoration: const InputDecoration(labelText: 'Server Port'),

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:a_deck_desktop/app/commands/commands_view_model.dart';
 import 'package:a_deck_desktop/app/models/command.dart';
 import 'package:a_deck_desktop/services/data_api.dart';
 import 'package:file_picker/file_picker.dart';
@@ -58,6 +59,7 @@ class CommandManagmentViewModel extends StateNotifier<Command> {
 
   void onSubmitNew(BuildContext context) {
     ref.read(dataProvider.notifier).addCommand(state);
+    ref.refresh(commandsViewModelProvider);
     Navigator.pop(context);
   }
 

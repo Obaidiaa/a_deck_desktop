@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:a_deck_desktop/app/commands/add_command_page.dart';
+import 'package:a_deck_desktop/app/commands/command_managment_view_model.dart';
 import 'package:a_deck_desktop/app/commands/commands_view_model.dart';
 import 'package:a_deck_desktop/app/commands/edit_command_page.dart';
 import 'package:a_deck_desktop/routing/app_router.dart';
@@ -30,9 +31,10 @@ class _CommandsPageState extends ConsumerState<CommandsPage> {
         actions: [
           ElevatedButton(
               onPressed: () => showDialog(
-                  context: context,
-                  builder: (BuildContext context) =>
-                      const Dialog(child: AddCommand())),
+                      context: context,
+                      builder: (BuildContext context) =>
+                          const Dialog(child: AddCommand()))
+                  .then((value) => ref.refresh(addCommandViewModel)),
               child: const Icon(Icons.add))
         ],
       ),

@@ -35,7 +35,7 @@ class DataApi extends StateNotifier<List<Command>> {
   Socket? socket;
   List<Command>? listCommands;
   bool isWebSocketRunning = false;
-
+  WebSocket? webSocket;
   @override
   List<Command> get state => super.state;
 
@@ -57,7 +57,7 @@ class DataApi extends StateNotifier<List<Command>> {
     state = [
       ...state,
       Command(
-          id: (listCommands!.length + 1).toString(),
+          id: (state.length + 1).toString(),
           name: newCommand.name,
           command: newCommand.command,
           picture: newCommand.picture!),
@@ -103,7 +103,8 @@ class DataApi extends StateNotifier<List<Command>> {
       print(isWebSocketRunning);
       return;
     }
-    final server = await ServerSocket.bind(InternetAddress.anyIPv4, 7777);
+    final server = await ServerSocket.bind(
+        InternetAddress.anyIPv4, int.parse(settings.serverPort));
     isWebSocketRunning = true;
     print('server started');
     // socket = await server.first;
@@ -116,18 +117,20 @@ class DataApi extends StateNotifier<List<Command>> {
   }
 
   startServer2() {
-    HttpServer.bind(InternetAddress.anyIPv4, 8888).then((HttpServer server) {
+    HttpServer.bind(InternetAddress.anyIPv4, int.parse(settings.serverPort) + 1)
+        .then((HttpServer server) {
       // httpserver listens on http://localhost:8000
-      print('[+]HttpServer listening at -- http://localhost:8888');
+      print(
+          '[+]HttpServer listening at -- ${InternetAddress.anyIPv4} ${int.parse(settings.serverPort) + 1}');
       server.listen((HttpRequest request) {
         WebSocketTransformer.upgrade(request).then((WebSocket ws) {
+          webSocket = ws;
           // upgradation happens here and now we've a WebSocket object
           ws.listen(
             // listening for data
             (data) async {
               print(
                   '\t\t${request.connectionInfo?.remoteAddress} -- ${Map<String, String>.from(json.decode(data))}'); // client will send JSON data
-
               if (ws.readyState == WebSocket.open) {
                 final command = jsonDecode(data)['command'];
                 final pararmeters = jsonDecode(data)['parameters'];
@@ -165,19 +168,30 @@ class DataApi extends StateNotifier<List<Command>> {
       // handle data from the client
       (Uint8List data) async {
         final message = String.fromCharCodes(data);
-        final command = jsonDecode(message)['command'];
-        if (command == 'getCommandsList') {
-          client.write(commandsListJson);
-        } else if (message.contains('getImage')) {
-          final imageId = jsonDecode(message);
-          print(imageId);
-          final image = state
-              .firstWhere((element) => element.id == imageId['getImage'])
-              .picture!;
+        try {
+          final command = jsonDecode(message)['command'];
+          if (command == 'getCommandsList') {
+            client.write(commandsListJson);
+          } else if (message.contains('getImage')) {
+            final imageId = jsonDecode(message);
+            print(imageId);
+            final image = state
+                .firstWhere((element) => element.id == imageId['getImage'])
+                .picture!;
+            print(image);
+            await File(image).openRead().pipe(client);
+          } else {
+            client.write('Very funny.');
+          }
+        } catch (e) {
+          print('is requesting images');
+          //             final imageId = jsonDecode(message);
+          //   print(imageId);
+          final image =
+              state.firstWhere((element) => element.id == '1').picture!;
           print(image);
+
           await File(image).openRead().pipe(client);
-        } else {
-          client.write('Very funny.');
         }
       },
 
@@ -201,6 +215,15 @@ class DataApi extends StateNotifier<List<Command>> {
     print('Client: $message');
     if (socket != null) {
       socket!.write(message);
+    } else {
+      print('no client ocnnected');
+    }
+  }
+
+  sendMessageWebSocket(String message) async {
+    print('Client: $message');
+    if (webSocket != null) {
+      webSocket!.add(message);
     } else {
       print('no client ocnnected');
     }

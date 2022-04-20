@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:a_deck_desktop/app/models/command.dart';
 import 'package:a_deck_desktop/app/models/settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final sharedPreferencesServiceProvider =
