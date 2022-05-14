@@ -1,14 +1,10 @@
 // deck page showing all commands
 
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:a_deck_desktop/app/deck/deck_view_model.dart';
 import 'package:a_deck_desktop/app/models/settings.dart';
 import 'package:a_deck_desktop/routing/app_router.dart';
-import 'package:a_deck_desktop/services/data_api.dart';
-import 'package:a_deck_desktop/services/shared_preferences_service.dart';
-import 'package:a_deck_desktop/services/web_socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -66,10 +62,10 @@ class DeckDisplay extends ConsumerWidget {
                 loading: () => const SizedBox(
                       child: Center(child: CircularProgressIndicator()),
                     ))),
-        ElevatedButton(
-          onPressed: () => ref.read(dataProvider.notifier).startServer2(),
-          child: const Text('re'),
-        )
+        // ElevatedButton(
+        //   onPressed: () {},
+        //   child: const Text('re'),
+        // )
       ],
     );
   }

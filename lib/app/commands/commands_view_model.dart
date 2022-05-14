@@ -21,6 +21,8 @@ class CommandsViewModel {
   String command = '';
   String id = '';
 
+  test() async {}
+
   onDeleteCommand(String id) {
     ref.read(dataProvider.notifier).setCommands(id);
   }

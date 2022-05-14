@@ -1,7 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:a_deck_desktop/app/commands/add_command_page.dart';
+import 'package:a_deck_desktop/app/commands/add_command_page_new.dart';
 import 'package:a_deck_desktop/app/commands/command_managment_view_model.dart';
 import 'package:a_deck_desktop/app/commands/commands_view_model.dart';
 import 'package:a_deck_desktop/app/commands/edit_command_page.dart';
@@ -33,7 +30,8 @@ class _CommandsPageState extends ConsumerState<CommandsPage> {
               onPressed: () => showDialog(
                       context: context,
                       builder: (BuildContext context) =>
-                          const Dialog(child: AddCommand()))
+                          // const Dialog(child: AddCommand()))
+                          const Dialog(child: AddCommandNew()))
                   .then((value) => ref.refresh(addCommandViewModel)),
               child: const Icon(Icons.add))
         ],
@@ -43,7 +41,7 @@ class _CommandsPageState extends ConsumerState<CommandsPage> {
               children: ref.watch(commandsListProvider).map((data) {
         return ListTile(
           title: Text(data.name!),
-          leading: Image.file(File(data.picture!)),
+          // leading: Image.file(File(data.picture!)),
           subtitle: Text(data.command!),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,

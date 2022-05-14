@@ -1,6 +1,5 @@
 // send data to client
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -8,9 +7,10 @@ import 'dart:typed_data';
 import 'package:a_deck_desktop/app/models/command.dart';
 import 'package:a_deck_desktop/app/models/settings.dart';
 import 'package:a_deck_desktop/services/shared_preferences_service.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 final dataProvider = StateNotifierProvider<DataApi, List<Command>>((ref) {
   final settings = ref.watch(sharedPreferencesServiceProvider);
@@ -28,7 +28,7 @@ class DataApi extends StateNotifier<List<Command>> {
   DataApi(this.listCommands, {required this.ref, required this.settings})
       : super(listCommands ?? []) {
     startServer();
-    startServer2();
+    httpServer();
   }
 
   ServerSocket? server;
@@ -36,13 +36,13 @@ class DataApi extends StateNotifier<List<Command>> {
   List<Command>? listCommands;
   bool isWebSocketRunning = false;
   WebSocket? webSocket;
+  var uuid = const Uuid();
+
   @override
   List<Command> get state => super.state;
 
   List<Command> apiGetCommands() {
-    // return Future.delayed(const Duration(milliseconds: 1000), () async {
     return state;
-    // });
   }
 
   void setCommands(String id) {
@@ -57,7 +57,7 @@ class DataApi extends StateNotifier<List<Command>> {
     state = [
       ...state,
       Command(
-          id: (state.length + 1).toString(),
+          id: newCommand.id,
           name: newCommand.name,
           command: newCommand.command,
           picture: newCommand.picture!),
@@ -94,21 +94,20 @@ class DataApi extends StateNotifier<List<Command>> {
     sendMessage(commandsListJson);
   }
 
-  // List<Socket> sockets = [];
-  // StreamConsumer<String>? streamConsumer;
-
   startServer() async {
     // bind the socket server to an address and port
     if (isWebSocketRunning) {
-      print(isWebSocketRunning);
+      if (kDebugMode) {
+        print(isWebSocketRunning);
+      }
       return;
     }
     final server = await ServerSocket.bind(
         InternetAddress.anyIPv4, int.parse(settings.serverPort));
     isWebSocketRunning = true;
-    print('server started');
-    // socket = await server.first;
-    // print(socket.address);
+    if (kDebugMode) {
+      print('server started');
+    }
     // listen for clent connections to the server
     server.listen((client) {
       socket = client;
@@ -116,51 +115,40 @@ class DataApi extends StateNotifier<List<Command>> {
     });
   }
 
-  startServer2() {
+  httpServer() async {
     HttpServer.bind(InternetAddress.anyIPv4, int.parse(settings.serverPort) + 1)
-        .then((HttpServer server) {
-      // httpserver listens on http://localhost:8000
-      print(
-          '[+]HttpServer listening at -- ${InternetAddress.anyIPv4} ${int.parse(settings.serverPort) + 1}');
+        .then((server) {
       server.listen((HttpRequest request) {
-        WebSocketTransformer.upgrade(request).then((WebSocket ws) {
-          webSocket = ws;
-          // upgradation happens here and now we've a WebSocket object
-          ws.listen(
-            // listening for data
-            (data) async {
-              print(
-                  '\t\t${request.connectionInfo?.remoteAddress} -- ${Map<String, String>.from(json.decode(data))}'); // client will send JSON data
-              if (ws.readyState == WebSocket.open) {
-                final command = jsonDecode(data)['command'];
-                final pararmeters = jsonDecode(data)['parameters'];
-                if (command == 'getCommandsList') {
-                  ws.add(jsonEncode(state));
-                } else if (command == 'getImage') {
-                  final imageId = jsonDecode(data);
-                  print(state);
-                  final image = state
-                      .firstWhere(
-                          (element) => element.id == imageId['parameters'])
-                      .picture!;
-                  print(image);
-                  await ws.addStream(File(image).openRead());
-                  // await File(image).openRead().pipe();
-                }
-              }
-            },
-            onDone: () => print('[+]Done :)'),
-            onError: (err) => print('[!]Error -- ${err.toString()}'),
-            cancelOnError: true,
-          );
-        }, onError: (err) => print('[!]Error -- ${err.toString()}'));
-      }, onError: (err) => print('[!]Error -- ${err.toString()}'));
-    }, onError: (err) => print('[!]Error -- ${err.toString()}'));
+        try {
+          if (request.method == 'GET') {
+            String? imageID = request.uri.queryParameters['ImageID'];
+            final imageLocation =
+                state.firstWhere((element) => element.id == imageID).picture!;
+            File image = File(imageLocation);
+            image.readAsBytes().then((raw) {
+              request.response.headers.set('Content-Type', 'image/jpeg');
+              request.response.headers.set('Content-Length', raw.length);
+              request.response.add(raw);
+              request.response.close();
+            });
+          } else {}
+        } catch (e) {
+          if (kDebugMode) {
+            print('Exception in handleRequest: $e');
+          }
+        }
+        if (kDebugMode) {
+          print('Request handled.');
+        }
+      });
+    });
   }
 
   void handleConnection(Socket client) {
-    print('Connection from'
-        ' ${client.remoteAddress.address}:${client.remotePort}');
+    if (kDebugMode) {
+      print('Connection from'
+          ' ${client.remoteAddress.address}:${client.remotePort}');
+    }
     final commandsListJson = jsonEncode(state.map((e) => e.toJson()).toList());
 
     // listen for events from the client
@@ -170,62 +158,75 @@ class DataApi extends StateNotifier<List<Command>> {
         final message = String.fromCharCodes(data);
         try {
           final command = jsonDecode(message)['command'];
+          final parameters = jsonDecode(message)['parameters'];
           if (command == 'getCommandsList') {
             client.write(commandsListJson);
-          } else if (message.contains('getImage')) {
-            final imageId = jsonDecode(message);
-            print(imageId);
-            final image = state
-                .firstWhere((element) => element.id == imageId['getImage'])
-                .picture!;
-            print(image);
-            await File(image).openRead().pipe(client);
+          } else if (command == 'StartApplication') {
+            if (kDebugMode) {
+              print('Start Command Request');
+            }
+            if (kDebugMode) {
+              print(' ${jsonDecode(message)['parameters']}');
+            }
+            final command =
+                state.firstWhere((element) => element.id == parameters).command;
+            if (kDebugMode) {
+              print(command);
+            }
+            await Process.start('powershell "$command"', [], runInShell: false);
           } else {
-            client.write('Very funny.');
+            client.write('I don\'t not this command');
           }
         } catch (e) {
-          print('is requesting images');
-          //             final imageId = jsonDecode(message);
-          //   print(imageId);
-          final image =
-              state.firstWhere((element) => element.id == '1').picture!;
-          print(image);
-
-          await File(image).openRead().pipe(client);
+          if (kDebugMode) {
+            print(e);
+          }
         }
       },
 
       // handle errors
       onError: (error) {
         isWebSocketRunning = false;
-        print(error);
+        if (kDebugMode) {
+          print(error);
+        }
         client.close();
       },
 
       // handle the client closing the connection
       onDone: () {
         isWebSocketRunning = false;
-        print('Client left');
+        if (kDebugMode) {
+          print('Client left');
+        }
         client.close();
       },
     );
   }
 
   sendMessage(String message) async {
-    print('Client: $message');
+    if (kDebugMode) {
+      print('Client: $message');
+    }
     if (socket != null) {
       socket!.write(message);
     } else {
-      print('no client ocnnected');
+      if (kDebugMode) {
+        print('no client ocnnected');
+      }
     }
   }
 
   sendMessageWebSocket(String message) async {
-    print('Client: $message');
+    if (kDebugMode) {
+      print('Client: $message');
+    }
     if (webSocket != null) {
       webSocket!.add(message);
     } else {
-      print('no client ocnnected');
+      if (kDebugMode) {
+        print('no client ocnnected');
+      }
     }
   }
 }

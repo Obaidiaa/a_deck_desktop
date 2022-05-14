@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:a_deck_desktop/app/deck/deck_view_model.dart';
 import 'package:a_deck_desktop/app/models/settings.dart';
 import 'package:a_deck_desktop/services/shared_preferences_service.dart';
@@ -33,7 +31,9 @@ class SettingViewModel extends StateNotifier<Settings> {
 
   getCurrentIP(TextEditingController _serverIPController) async {
     final info = NetworkInfo();
-    print('ip ${await info.getWifiIP()}');
+    if (kDebugMode) {
+      print('ip ${await info.getWifiIP()}');
+    }
     // return info.getWifiIP();
     _serverIPController.text = (await info.getWifiIP())!;
   }
