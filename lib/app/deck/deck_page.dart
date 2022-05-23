@@ -45,16 +45,13 @@ class DeckDisplay extends ConsumerWidget {
                 data: (data) => GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
+                        crossAxisCount: 6,
                       ),
                       itemCount: data.length,
                       itemBuilder: (BuildContext context, int index) {
                         return Card(
-                          child: InkWell(
-                            onTap: () {},
-                            child: Image.file(File(data[index].picture!),
-                                fit: BoxFit.fill),
-                          ),
+                          child: Image.file(File(data[index].picture!),
+                              fit: BoxFit.fill),
                         );
                       },
                     ),

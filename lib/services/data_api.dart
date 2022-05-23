@@ -173,7 +173,13 @@ class DataApi extends StateNotifier<List<Command>> {
             if (kDebugMode) {
               print(command);
             }
-            await Process.start('powershell "$command"', [], runInShell: false);
+            final d = command!.split('\\');
+            d.removeLast();
+            String commandFile = d.join('\\') + '\\';
+            final arguments = command.split('\\').last.split(' ');
+            commandFile += arguments[0];
+            arguments.removeAt(0);
+            await Process.start(commandFile, arguments, runInShell: false);
           } else {
             client.write('I don\'t not this command');
           }

@@ -22,6 +22,8 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.dark,
       home: Consumer(
         builder: (context, ref, child) {
           return const HomePage();
