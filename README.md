@@ -1,16 +1,11 @@
-# a_deck_desktop
+# a_deck_desktop Application
 
-A new Flutter project.
+the is the server for the mobile application a_deck https://github.com/Obaidiaa/a_deck
 
-## Getting Started
+it open two ports one for websocket and one for http for image transfer.
 
-This project is a starting point for a Flutter application.
+the image transfer port is websocket port + 1.
 
-A few resources to get you started if this is your first Flutter project:
+eg. websocket port 8888 , file transfer port 8889
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<img width="648" alt="Screenshot 2022-05-23 194116" src="https://user-images.githubusercontent.com/78088910/169867677-ead67856-3e85-4fe4-8c94-14ef0d61946e.png">
